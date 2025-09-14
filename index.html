@@ -76,96 +76,54 @@
 </head>
 <body>
 
-<!-- Example 10+ posts -->
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111589.png" alt="Reddit"></div>
-  <div class="content">
-    <div class="title">[Reddit] Looking for Character Artist</div>
-    <div class="meta"><span>GameDev Studio</span> • <span>Remote</span> • <span>2h ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+<div id="postContainer"></div>
 
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></div>
-  <div class="content">
-    <div class="title">[Facebook] Hiring 2D Artist for Game Project</div>
-    <div class="meta"><span>Indie Dev Team</span> • <span>Anywhere</span> • <span>5h ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+<script>
+  // Pool of random posts
+  const posts = [
+    {platform:"Reddit", title:"Looking for Character Artist", team:"GameDev Studio", place:"Remote", time:"2h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/2111/2111589.png"},
+    {platform:"Facebook", title:"Hiring 2D Artist for Game Project", team:"Indie Dev Team", place:"Anywhere", time:"5h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733547.png"},
+    {platform:"Twitter", title:"Need VFX Artist", team:"Pixel Studio", place:"US", time:"1d ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733579.png"},
+    {platform:"Discord", title:"Looking for Concept Artist", team:"Community Server", place:"Anywhere", time:"Today", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/3670/3670157.png"},
+    {platform:"Reddit", title:"Commission: Background Artist Wanted", team:"Solo Dev", place:"Remote", time:"3h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/2111/2111589.png"},
+    {platform:"Facebook", title:"Looking for 3D Animator", team:"VR Studio", place:"Remote", time:"8h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733547.png"},
+    {platform:"Twitter", title:"Hiring: Concept Artist for Mobile Game", team:"App Devs", place:"EU", time:"1d ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733579.png"},
+    {platform:"Discord", title:"Paid Gig: UI Designer Needed", team:"Indie Group", place:"Anywhere", time:"Yesterday", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/3670/3670157.png"},
+    {platform:"Reddit", title:"Hiring Pixel Artist", team:"Retro Devs", place:"Remote", time:"4h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/2111/2111589.png"},
+    {platform:"Facebook", title:"Commission Open: Illustrator Needed", team:"Studio X", place:"Anywhere", time:"6h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733547.png"},
+  ];
 
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"></div>
-  <div class="content">
-    <div class="title">[Twitter] Need VFX Artist</div>
-    <div class="meta"><span>Pixel Studio</span> • <span>US</span> • <span>1d ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+  const container = document.getElementById("postContainer");
 
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Discord"></div>
-  <div class="content">
-    <div class="title">[Discord] Looking for Concept Artist</div>
-    <div class="meta"><span>Community Server</span> • <span>Anywhere</span> • <span>Today</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+  // Function to create a post card
+  function createPost(post) {
+    const div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML = `
+      <div class="logo"><img src="${post.logo}" alt="${post.platform}"></div>
+      <div class="content">
+        <div class="title">[${post.platform}] ${post.title}</div>
+        <div class="meta"><span>${post.team}</span> • <span>${post.place}</span> • <span>${post.time}</span></div>
+        <a class="link" href="${post.link}" target="_blank">View Post</a>
+      </div>
+    `;
+    return div;
+  }
 
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111589.png" alt="Reddit"></div>
-  <div class="content">
-    <div class="title">[Reddit] Commission: Background Artist Wanted</div>
-    <div class="meta"><span>Solo Dev</span> • <span>Remote</span> • <span>3h ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+  // Add initial 5 posts
+  for (let i=0; i<5; i++) {
+    const p = posts[Math.floor(Math.random()*posts.length)];
+    container.appendChild(createPost(p));
+  }
 
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></div>
-  <div class="content">
-    <div class="title">[Facebook] Looking for 3D Animator</div>
-    <div class="meta"><span>VR Studio</span> • <span>Remote</span> • <span>8h ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+  // Every 5 minutes add a random new post
+  setInterval(() => {
+    const p = posts[Math.floor(Math.random()*posts.length)];
+    const card = createPost(p);
+    container.prepend(card); // put new post on top
+  }, 300000); // 300000 ms = 5 minutes
 
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"></div>
-  <div class="content">
-    <div class="title">[Twitter] Hiring: Concept Artist for Mobile Game</div>
-    <div class="meta"><span>App Devs</span> • <span>EU</span> • <span>1d ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
-
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/3670/3670157.png" alt="Discord"></div>
-  <div class="content">
-    <div class="title">[Discord] Paid Gig: UI Designer Needed</div>
-    <div class="meta"><span>Indie Group</span> • <span>Anywhere</span> • <span>Yesterday</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
-
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111589.png" alt="Reddit"></div>
-  <div class="content">
-    <div class="title">[Reddit] Hiring Pixel Artist</div>
-    <div class="meta"><span>Retro Devs</span> • <span>Remote</span> • <span>4h ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
-
-<div class="post">
-  <div class="logo"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></div>
-  <div class="content">
-    <div class="title">[Facebook] Commission Open: Illustrator Needed</div>
-    <div class="meta"><span>Studio X</span> • <span>Anywhere</span> • <span>6h ago</span></div>
-    <a class="link" href="#">View Post</a>
-  </div>
-</div>
+</script>
 
 </body>
 </html>
