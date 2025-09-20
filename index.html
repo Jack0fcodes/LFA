@@ -81,7 +81,7 @@
 <script>
   const container = document.getElementById("postContainer");
 
-  // Create a post card
+  // Create post card
   function createPost(post) {
     const div = document.createElement("div");
     div.className = "post";
@@ -90,44 +90,50 @@
         <img src="https://cdn-icons-png.flaticon.com/512/2111/2111589.png" alt="Reddit">
       </div>
       <div class="content">
-        <div class="title">[Reddit] ${post.Title}</div>
-        <div class="meta"><span>${post.Subreddit}</span> • <span>${post.Author}</span></div>
-        <a class="link" href="${post.URL}" target="_blank">View Post</a>
+        <div class="title">[${post.subreddit}] ${post.title}</div>
+        <div class="meta"><span>${post.subreddit}</span> • <span>${post.author}</span></div>
+        <a class="link" href="${post.url}" target="_blank">View Post</a>
       </div>
     `;
     return div;
   }
 
-  // Fetch CSV and parse it
+  // Fetch and parse CSV (handles both 3-col and 5-col rows)
   async function fetchCSV() {
     const url = "https://raw.githubusercontent.com/Jack0fcodes/LFA/main/posts_reddit.csv";
     const res = await fetch(url);
     const text = await res.text();
 
     const rows = text.trim().split("\n");
-    const headers = rows[0].split(",");
-    const posts = rows.slice(1).map(row => {
-      const values = row.split(",");
-      return headers.reduce((obj, header, i) => {
-        obj[header.trim()] = values[i] ? values[i].trim() : "";
-        return obj;
-      }, {});
+    const posts = rows.map(row => {
+      const values = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // safe split for CSV
+
+      if (values.length === 3) {
+        return {
+          subreddit: values[0].trim(),
+          title: values[1].replace(/"/g, "").trim(),
+          url: values[2].trim(),
+          author: "Unknown"
+        };
+      } else {
+        return {
+          id: values[0].trim(),
+          subreddit: values[1].trim(),
+          title: values[2].replace(/"/g, "").trim(),
+          author: values[3].trim(),
+          url: values[4].trim()
+        };
+      }
     });
 
     return posts;
   }
 
-  // Initialize
-  async function init() {
-    const posts = await fetchCSV();
-
-    // Show latest 5 posts
-    posts.slice(0, 5).forEach(p => {
-      container.appendChild(createPost(p));
-    });
-  }
-
-  init();
+  // Init
+  fetchCSV().then(posts => {
+    // Show first 5 posts
+    posts.slice(0, 5).forEach(p => container.appendChild(createPost(p)));
+  });
 </script>
 
 </body>
