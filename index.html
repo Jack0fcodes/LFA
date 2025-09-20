@@ -81,7 +81,7 @@
 <script>
   const container = document.getElementById("postContainer");
 
-  // Helper: create post card
+  // Create a post card
   function createPost(post) {
     const div = document.createElement("div");
     div.className = "post";
@@ -98,13 +98,12 @@
     return div;
   }
 
-  // Fetch CSV from LFA repo
+  // Fetch CSV and parse it
   async function fetchCSV() {
     const url = "https://raw.githubusercontent.com/Jack0fcodes/LFA/main/posts_reddit.csv";
     const res = await fetch(url);
     const text = await res.text();
 
-    // Parse CSV
     const rows = text.trim().split("\n");
     const headers = rows[0].split(",");
     const posts = rows.slice(1).map(row => {
@@ -119,17 +118,16 @@
   }
 
   // Initialize
-  fetchCSV().then(posts => {
-    // Show initial 5 posts
-    posts.slice(0, 5).forEach(p => container.appendChild(createPost(p)));
+  async function init() {
+    const posts = await fetchCSV();
 
-    // Every 5 seconds add random new post
-    setInterval(() => {
-      const p = posts[Math.floor(Math.random() * posts.length)];
-      const card = createPost(p);
-      container.prepend(card);
-    }, 5000); // change to 300000 for 5 min in real
-  });
+    // Show latest 5 posts
+    posts.slice(0, 5).forEach(p => {
+      container.appendChild(createPost(p));
+    });
+  }
+
+  init();
 </script>
 
 </body>
