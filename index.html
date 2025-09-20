@@ -79,50 +79,57 @@
 <div id="postContainer"></div>
 
 <script>
-  // Pool of random posts
-  const posts = [
-    {platform:"Reddit", title:"Looking for Character Artist", team:"GameDev Studio", place:"Remote", time:"2h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/2111/2111589.png"},
-    {platform:"Facebook", title:"Hiring 2D Artist for Game Project", team:"Indie Dev Team", place:"Anywhere", time:"5h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733547.png"},
-    {platform:"Twitter", title:"Need VFX Artist", team:"Pixel Studio", place:"US", time:"1d ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733579.png"},
-    {platform:"Discord", title:"Looking for Concept Artist", team:"Community Server", place:"Anywhere", time:"Today", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/3670/3670157.png"},
-    {platform:"Reddit", title:"Commission: Background Artist Wanted", team:"Solo Dev", place:"Remote", time:"3h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/2111/2111589.png"},
-    {platform:"Facebook", title:"Looking for 3D Animator", team:"VR Studio", place:"Remote", time:"8h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733547.png"},
-    {platform:"Twitter", title:"Hiring: Concept Artist for Mobile Game", team:"App Devs", place:"EU", time:"1d ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733579.png"},
-    {platform:"Discord", title:"Paid Gig: UI Designer Needed", team:"Indie Group", place:"Anywhere", time:"Yesterday", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/3670/3670157.png"},
-    {platform:"Reddit", title:"Hiring Pixel Artist", team:"Retro Devs", place:"Remote", time:"4h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/2111/2111589.png"},
-    {platform:"Facebook", title:"Commission Open: Illustrator Needed", team:"Studio X", place:"Anywhere", time:"6h ago", link:"#", logo:"https://cdn-icons-png.flaticon.com/512/733/733547.png"},
-  ];
-
   const container = document.getElementById("postContainer");
 
-  // Function to create a post card
+  // Helper: create post card
   function createPost(post) {
     const div = document.createElement("div");
     div.className = "post";
     div.innerHTML = `
-      <div class="logo"><img src="${post.logo}" alt="${post.platform}"></div>
+      <div class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111589.png" alt="Reddit">
+      </div>
       <div class="content">
-        <div class="title">[${post.platform}] ${post.title}</div>
-        <div class="meta"><span>${post.team}</span> • <span>${post.place}</span> • <span>${post.time}</span></div>
-        <a class="link" href="${post.link}" target="_blank">View Post</a>
+        <div class="title">[Reddit] ${post.Title}</div>
+        <div class="meta"><span>${post.Subreddit}</span> • <span>${post.Author}</span></div>
+        <a class="link" href="${post.URL}" target="_blank">View Post</a>
       </div>
     `;
     return div;
   }
 
-  // Add initial 5 posts
-  for (let i=0; i<5; i++) {
-    const p = posts[Math.floor(Math.random()*posts.length)];
-    container.appendChild(createPost(p));
+  // Fetch CSV from LFA repo
+  async function fetchCSV() {
+    const url = "https://raw.githubusercontent.com/Jack0fcodes/LFA/main/posts_reddit.csv";
+    const res = await fetch(url);
+    const text = await res.text();
+
+    // Parse CSV
+    const rows = text.trim().split("\n");
+    const headers = rows[0].split(",");
+    const posts = rows.slice(1).map(row => {
+      const values = row.split(",");
+      return headers.reduce((obj, header, i) => {
+        obj[header.trim()] = values[i] ? values[i].trim() : "";
+        return obj;
+      }, {});
+    });
+
+    return posts;
   }
 
-  // Every 5 minutes add a random new post
-  setInterval(() => {
-    const p = posts[Math.floor(Math.random()*posts.length)];
-    const card = createPost(p);
-    container.prepend(card); // put new post on top
-  }, 5000); // 300000 ms = 5 minutes
+  // Initialize
+  fetchCSV().then(posts => {
+    // Show initial 5 posts
+    posts.slice(0, 5).forEach(p => container.appendChild(createPost(p)));
 
+    // Every 5 seconds add random new post
+    setInterval(() => {
+      const p = posts[Math.floor(Math.random() * posts.length)];
+      const card = createPost(p);
+      container.prepend(card);
+    }, 5000); // change to 300000 for 5 min in real
+  });
 </script>
 
 </body>
