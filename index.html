@@ -2,143 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Artist Post Board</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddit Posts</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #121212;
-      margin: 0;
-      padding: 20px;
-      color: #e0e0e0;
+      background: #111;
+      color: #eee;
     }
-    .post {
-      display: flex;
-      align-items: center;
-      background: #1e1e1e;
-      padding: 15px;
-      margin: 12px auto;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      max-width: 700px;
-      opacity: 0;
-      transform: scale(0.95);
-      animation: popIn 0.5s forwards;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
     }
-    .logo {
-      width: 50px;
-      height: 50px;
-      border-radius: 8px;
-      background: #2a2a2a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 15px;
-      flex-shrink: 0;
+    th, td {
+      padding: 8px 12px;
+      border: 1px solid #444;
     }
-    .logo img {
-      width: 30px;
-      height: 30px;
+    th {
+      background: #222;
     }
-    .content {
-      flex: 1;
-    }
-    .title {
-      font-size: 16px;
-      font-weight: bold;
-      margin-bottom: 6px;
-      color: #fff;
-    }
-    .meta {
-      font-size: 14px;
-      color: #aaa;
-    }
-    .meta span {
-      margin-right: 10px;
-    }
-    .link {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 14px;
-      color: #4da3ff;
-      text-decoration: none;
-    }
-    .link:hover {
-      text-decoration: underline;
-    }
-    @keyframes popIn {
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+    a {
+      color: #6cf;
     }
   </style>
 </head>
 <body>
+  <h1>Reddit Posts</h1>
+  <table id="postsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Subreddit</th>
+        <th>Title</th>
+        <th>User</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<div id="postContainer"></div>
+  <script>
+    async function loadCSV() {
+      const response = await fetch("posts_reddit.csv"); // same folder
+      const text = await response.text();
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      
+      const tbody = document.querySelector("#postsTable tbody");
 
-<script>
-  const container = document.getElementById("postContainer");
+      rows.slice(1).forEach(cols => { // skip header row
+        const tr = document.createElement("tr");
 
-  // Create post card
-  function createPost(post) {
-    const div = document.createElement("div");
-    div.className = "post";
-    div.innerHTML = `
-      <div class="logo">
-        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111589.png" alt="Reddit">
-      </div>
-      <div class="content">
-        <div class="title">[${post.subreddit}] ${post.title}</div>
-        <div class="meta"><span>${post.subreddit}</span> • <span>${post.author}</span></div>
-        <a class="link" href="${post.url}" target="_blank">View Post</a>
-      </div>
-    `;
-    return div;
-  }
+        cols.forEach((col, idx) => {
+          const td = document.createElement("td");
+          if (idx === cols.length - 1) { // last col = link
+            const a = document.createElement("a");
+            a.href = col.replace(/"/g, "");
+            a.textContent = "View";
+            a.target = "_blank";
+            td.appendChild(a);
+          } else {
+            td.textContent = col.replace(/"/g, "");
+          }
+          tr.appendChild(td);
+        });
 
-  // Fetch and parse CSV (works for both 3-col and 5-col rows, no headers needed)
-  async function fetchCSV() {
-    const url = "https://raw.githubusercontent.com/Jack0fcodes/LFA/main/posts_reddit.csv";
-    const res = await fetch(url);
-    const text = await res.text();
-
-    const rows = text.trim().split("\n");
-    return rows.map(row => {
-      const values = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
-
-      if (values.length === 3) {
-        return {
-          subreddit: values[0].trim(),
-          title: values[1].replace(/"/g, "").trim(),
-          url: values[2].trim(),
-          author: "Unknown"
-        };
-      } else {
-        return {
-          id: values[0].trim(),
-          subreddit: values[1].trim(),
-          title: values[2].replace(/"/g, "").trim(),
-          author: values[3].trim(),
-          url: values[4].trim()
-        };
-      }
-    });
-  }
-
-  // Init
-  fetchCSV().then(posts => {
-    if (posts.length === 0) {
-      container.innerHTML = "<p>No posts found.</p>";
-      return;
+        tbody.appendChild(tr);
+      });
     }
-    posts.slice(0, 5).forEach(p => container.appendChild(createPost(p)));
-  }).catch(err => {
-    console.error("Error loading CSV:", err);
-    container.innerHTML = "<p>Failed to load posts.</p>";
-  });
-</script>
-
+    loadCSV();
+  </script>
 </body>
 </html>
