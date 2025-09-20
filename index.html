@@ -98,15 +98,15 @@
     return div;
   }
 
-  // Fetch and parse CSV (handles both 3-col and 5-col rows)
+  // Fetch and parse CSV (works for both 3-col and 5-col rows, no headers needed)
   async function fetchCSV() {
     const url = "https://raw.githubusercontent.com/Jack0fcodes/LFA/main/posts_reddit.csv";
     const res = await fetch(url);
     const text = await res.text();
 
     const rows = text.trim().split("\n");
-    const posts = rows.map(row => {
-      const values = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // safe split for CSV
+    return rows.map(row => {
+      const values = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
 
       if (values.length === 3) {
         return {
@@ -125,14 +125,18 @@
         };
       }
     });
-
-    return posts;
   }
 
   // Init
   fetchCSV().then(posts => {
-    // Show first 5 posts
+    if (posts.length === 0) {
+      container.innerHTML = "<p>No posts found.</p>";
+      return;
+    }
     posts.slice(0, 5).forEach(p => container.appendChild(createPost(p)));
+  }).catch(err => {
+    console.error("Error loading CSV:", err);
+    container.innerHTML = "<p>Failed to load posts.</p>";
   });
 </script>
 
